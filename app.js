@@ -152,6 +152,12 @@ var UIController = (function () {
     return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
   }
 
+  var nodeListForEach = function(list, callback) {
+    for (var i = 0; i < list.length; i++) {
+      callback(list[i], i);
+    }
+  }
+
   return {
     getInput: function() {
       return {
@@ -214,11 +220,6 @@ var UIController = (function () {
 
     displayPercentages: function(percentages) {
       var fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
-      var nodeListForEach = function(list, callback) {
-        for (var i = 0; i < list.length; i++) {
-          callback(list[i], i);
-        }
-      }
 
       nodeListForEach(fields, function(field, index) {
         field.textContent = percentages[index] > 0 ? percentages[index] + '%' : '---';
@@ -232,6 +233,20 @@ var UIController = (function () {
       year = now.getFullYear();
       month = now.getMonth();
       document.querySelector(DOMstrings.dateLabel).textContent = MONTHS[month] + ' ' + year;
+    },
+
+    changeType: function() {
+      var fields = document.querySelectorAll(
+        DOMstrings.inputType + ',' +
+        DOMstrings.inputDescription + ',' +
+        DOMstrings.inputValue
+      );
+      
+      nodeListForEach(fields, function(field) {
+        field.classList.toggle('red-focus');
+      });
+
+      document.querySelector(DOMstrings.inputBtn).classList.toggle('red');
     },
 
     getDOMstrings: DOMstrings
@@ -253,7 +268,10 @@ var controller = (function (budgetCtrl, UICtrl) {
     });
 
     // Add event listener to delete income and expense items
-    document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem)
+    document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
+
+    // Change the input focus border color to blue/red in respect to the input type ie. income or expense
+    document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changeType);
   };
 
   var updateBudget = function() {
